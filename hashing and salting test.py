@@ -1,11 +1,6 @@
-import os, time, hashlib
-
-bcrypt = None
+import os, time, hashlib, bcrypt
 hash_secret = None
 ARGON2_TYPE = None
-
-import bcrypt as _bcrypt
-bcrypt = _bcrypt
 
 from argon2.low_level import hash_secret, Type as ARGON2_TYPE
 
@@ -33,7 +28,7 @@ methods = [
      lambda: hashlib.sha256(os.urandom(SALT_LEN) + pw_b).hexdigest()),
 
     ("PBKDF2",
-     lambda: hashlib.pbkdf2_hmac("sha256", pw_b, os.urandom(SALT_LEN), 100_000, dklen=DKLEN)),
+     lambda: hashlib.pbkdf2_hmac("sha256", pw_b, os.urandom(SALT_LEN), 100_000, DKLEN)),
 ]
 
 # bcrypt with standardized 12B salt; cost=12
@@ -42,8 +37,6 @@ if bcrypt is not None:
         "bcrypt",
         lambda: bcrypt.hashpw(pw_b, bcrypt.gensalt(rounds=12))
     ))
-else:
-    methods.append(("bcrypt", None))
 
 # Argon2id with standardized 12B salt
 if hash_secret is not None and ARGON2_TYPE is not None:
@@ -55,8 +48,6 @@ if hash_secret is not None and ARGON2_TYPE is not None:
             parallelism=1, hash_len=DKLEN, type=ARGON2_TYPE.ID
         )
     ))
-else:
-    methods.append(("Argon2id (install 'argon2-cffi' to measure)", None))
 
 print("\nMethod                                               Avg time (ms/op)")
 print("----------------------------------------------------------------------")

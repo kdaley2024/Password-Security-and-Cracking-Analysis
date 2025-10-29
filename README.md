@@ -19,4 +19,7 @@ python3 add_target.py
 ```
 
 
+### Salting and Hashing part:
+needed pip files for using hashing and salting:
+pip install bcrypt argon2-cffi
 

@@ -4,18 +4,10 @@ bcrypt = None
 hash_secret = None
 ARGON2_TYPE = None
 
-try:
-    import bcrypt as _bcrypt
-    bcrypt = _bcrypt
-except Exception:
-    pass
+import bcrypt as _bcrypt
+bcrypt = _bcrypt
 
-try:
-    from argon2.low_level import hash_secret as _hash_secret, Type as _Type
-    hash_secret = _hash_secret
-    ARGON2_TYPE = _Type
-except Exception:
-    pass
+from argon2.low_level import hash_secret, Type as ARGON2_TYPE
 
 SALT_LEN = 12        # standardized salt length
 DKLEN = 32           # standardized derived key length

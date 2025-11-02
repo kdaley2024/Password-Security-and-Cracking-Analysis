@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Driver script to run: create_password_dictionary, add_target, and attacks.
 

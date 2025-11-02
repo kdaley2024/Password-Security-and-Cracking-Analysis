@@ -2,17 +2,17 @@
 Cyber Operations Project by Karla, Elton, Nikhil
 
 ## Pasword Strength Checker
-```python
+```bash
 python3 dictionary.py
 ```
 
 ## Brute Force and Dictionary Attack - Karla Daley
 ### Template
-```python
+```bash
 python3 main.py --username <username> --password <strong password> --dict-max <n> --dict-out <wordlist name> --brute-max-len <n> --charset lower,digits --out <filename>
 ```
 ### Example Implementation
-```python
+```bash
 python3 main.py --username admin --password ST0d311T456$ --dict-max 10000 --dict-out dictionary.txt --brute-max-len 4 --charset lower,digits --out cracked.csv
 ```
 

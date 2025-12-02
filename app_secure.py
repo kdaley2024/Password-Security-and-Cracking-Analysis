@@ -4,6 +4,7 @@ import secrets
 import urllib.parse
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import hashlib
+import dictionary
 
 # In-memory "database"
 users = {}       # username -> {"salt": bytes, "hash": bytes}
@@ -56,6 +57,11 @@ PAGE = """\
     <input name="password" type="password" placeholder="Password" required>
     <button type="submit">Login</button>
   </form>
+  <h3>Check Password</h3>
+  <form method="post" action="/check-password">
+    <input name="password" type="password" placeholder="Password to check" required>
+    <button type="submit">Check</button>
+  </form>
 
   {message}
 </body>
@@ -91,6 +97,7 @@ def register_user(username: str, password: str) -> None:
     h = scrypt_hash(password, salt)
     users[username] = {"salt": salt, "hash": h}
 
+
 def verify_user(username: str, password: str) -> bool:
     record = users.get(username)
     if not record:
@@ -116,6 +123,21 @@ class App(BaseHTTPRequestHandler):
 
         username = fields.get("username", [""])[0].strip()
         password = fields.get("password", [""])[0]
+
+        if self.path == "/check-password":
+            pwd = password
+            if not pwd:
+                self._reply("Missing password.", error=True)
+                return
+            try:
+                common = dictionary.is_common(pwd)
+            except Exception:
+                common = False
+            if common:
+                self._reply("This password appears in the dictionary — choose a stronger one.", error=True)
+            else:
+                self._reply("Password not found in dictionary (good).")
+            return
 
         if self.path == "/register":
             if not username or not password:

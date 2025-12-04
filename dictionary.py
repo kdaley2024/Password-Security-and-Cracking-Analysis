@@ -7,7 +7,7 @@ from typing import Dict, Any, List
 
 # Beginner-friendly notes:
 # - This script provides two small utilities related to passwords:
-#   1) Estimate a password's entropy and classify its strength.
+#   1) Estimate a password's bit length and classify its strength.
 #   2) Build a JSON "dictionary" from a text password list with simple metadata.
 # - The file intentionally keeps functions small and easy to read so beginners
 #   can follow how input is read, processed, and written out.
@@ -20,7 +20,7 @@ COMMON_WEAK = {
 # COMMON_WEAK is a small set of very common passwords. We treat these as
 # immediately "weak" because they are well-known and frequently used.
 
-def estimate_entropy(pw: str) -> float:
+def strength(pw: str) -> float:
     pool = 0
     # If the password contains lowercase letters, consider 26 lowercase chars.
     if any(c.islower() for c in pw): pool += 26
@@ -47,16 +47,14 @@ def classify_password(pw: str) -> str:
     if len(pw_clean) < 6:
         return "weak"
 
-    entropy = estimate_entropy(pw_clean)
+    pass_strength = strength(pw_clean)
 
-    # Use simple entropy thresholds to classify strength. These thresholds
-    # are illustrative, not authoritative.
     # <28 bits -> weak
     # 28..50 bits -> moderate
     # >50 bits -> strong
-    if entropy < 28:
+    if pass_strength < 28:
         return "weak"
-    elif entropy < 50:
+    elif pass_strength < 50:
         return "moderate"
     else:
         return "strong"
@@ -85,7 +83,6 @@ def build_password_dict(path: str, case_sensitive: bool = True) -> Dict[str, Dic
     Metadata includes:
       - line: original line number (1-based)
       - length: number of characters
-      - entropy: estimated entropy (bits)
       - classification: weak/moderate/strong
     """
     # Build a mapping where each key is a password (optionally lowercased)
@@ -99,13 +96,11 @@ def build_password_dict(path: str, case_sensitive: bool = True) -> Dict[str, Dic
         # do not overwrite first occurrence — first line wins
         if pw in result:
             continue
-        ent = round(estimate_entropy(raw), 2)
         cls = classify_password(raw)
         result[pw] = {
             "original": raw,
             "line": idx,
             "length": len(raw),
-            "entropy": ent,
             "classification": cls,
         }
     return result
@@ -122,7 +117,7 @@ def save_dict_as_json(d: Dict[str, Any], out_path: str) -> None:
 if __name__ == "__main__":
     # Parse command-line flags. Note: we kept short '-b' / '-build' flag as
     # in the original code; it accepts an optional filename value.
-    parser = argparse.ArgumentParser(description="Password utilities: entropy/classification and build dictionary")
+    parser = argparse.ArgumentParser(description="Password utilities: bit length classification and build dictionary")
     parser.add_argument("-build", "-b", nargs="?", const="passwords.json",
                         help="Build a dictionary from password_dictionary.txt and save to given JSON file (default: passwords.json)")
     parser.add_argument("--file", "-f", default="password_dictionary.txt",
@@ -153,8 +148,8 @@ if __name__ == "__main__":
         raise SystemExit
 
     label = classify_password(pw)
-    ent = round(estimate_entropy(pw), 2)
-    print(f"Strength: {label} (estimated entropy: {ent} bits)")
+    ent = round(strength(pw), 2)
+    print(f"Strength: {label}")
 
     # Check membership in provided password file (if available)
     try:

@@ -35,3 +35,28 @@ pip install bcrypt argon2-cffi
   
   ```bash
   python3 main.py
+
+- **Hydra against DVWA (Low security):**
+
+  ```bash
+  hydra -l admin -P password_dictionary_generated.txt localhost \
+  http-post-form "/login.php:username=^USER^&password=^PASS^:Login failed"
+
+- **Hydra against secure demo app (salted scrypt + lockout):**
+
+  ```bash
+  hydra -l admin -P password_dictionary_generated.txt -s 8000 localhost \
+  http-post-form "/login:username=^USER^&password=^PASS^:Login failed"
+
+- **Hashing performance demo (bcrypt/Argon2id included):**
+
+  ```bash
+  python3 hashing_and_salting_test.py
+
+### Results summary
+
+- **Local dictionary attack: 1 password cracked after 290 attempts.**
+- **Local brute‑force attack: 0 cracked; infeasible for large charsets.**
+- **DVWA dictionary attack (Hydra): 16 weak variants found for admin.**
+- **Secure demo app attack (Hydra): 0 cracked; salted scrypt + lockout prevented.**
+- **Hashing demo: bcrypt and Argon2id resisted due to salting and computational cost; fast hashes (MD5/SHA1/SHA256) are unsafe.**
